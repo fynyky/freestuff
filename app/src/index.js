@@ -163,46 +163,45 @@ const auth = new Auth(passport, db).init()
 app.use(express.static(publicPath))
 
 app.get('/', async (req, res) => {
-  // // Charity users see everthing
-  // // Logged in users see can their own posts even if less than 48 hours
-  // // Non logged in users only see results older than 48 hours
-  // let result
-  // if (req.user?.charity) {
-  //   result = await db.query(`
-  //     SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
-  //     FROM listing JOIN account 
-  //     ON listing_owner_id = account_id
-  //     ORDER BY listing_created_at DESC
-  //   `)
-  // } else if (req.user?.id) {
-  //   result = await db.query(`
-  //     SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
-  //     FROM listing JOIN account 
-  //     ON listing_owner_id = account_id
-  //     WHERE (listing_created_at < NOW() - INTERVAL '48 hours')
-  //     OR (listing_owner_id = $1)
-  //     ORDER BY listing_created_at DESC
-  //   `, [req.user.id])
-  // } else {
-  //   result = await db.query(`
-  //     SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
-  //     FROM listing JOIN account 
-  //     ON listing_owner_id = account_id
-  //     WHERE listing_created_at < NOW() - INTERVAL '48 hours'
-  //     ORDER BY listing_created_at DESC
-  //   `)
-  // }
-  // // Non charity users only see stuff older than 48 hours
-  // const listings = result.rows.map(row => {
-  //   return {
-  //     id: row.listing_id,
-  //     description: row.listing_description,
-  //     timestamp: dayjs(row.listing_created_at).fromNow(),
-  //     location: row.listing_location,
-  //     imageURL: `${BLOB_PATH}${row.listing_image_key}`
-  //   }
-  // })
-  const listings = []
+  // Charity users see everthing
+  // Logged in users see can their own posts even if less than 48 hours
+  // Non logged in users only see results older than 48 hours
+  let result
+  if (req.user?.charity) {
+    result = await db.query(`
+      SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
+      FROM listing JOIN account 
+      ON listing_owner_id = account_id
+      ORDER BY listing_created_at DESC
+    `)
+  } else if (req.user?.id) {
+    result = await db.query(`
+      SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
+      FROM listing JOIN account 
+      ON listing_owner_id = account_id
+      WHERE (listing_created_at < NOW() - INTERVAL '48 hours')
+      OR (listing_owner_id = $1)
+      ORDER BY listing_created_at DESC
+    `, [req.user.id])
+  } else {
+    result = await db.query(`
+      SELECT listing_id, listing_description, listing_location, listing_created_at, listing_image_key 
+      FROM listing JOIN account 
+      ON listing_owner_id = account_id
+      WHERE listing_created_at < NOW() - INTERVAL '48 hours'
+      ORDER BY listing_created_at DESC
+    `)
+  }
+  // Non charity users only see stuff older than 48 hours
+  const listings = result.rows.map(row => {
+    return {
+      id: row.listing_id,
+      description: row.listing_description,
+      timestamp: dayjs(row.listing_created_at).fromNow(),
+      location: row.listing_location,
+      imageURL: `${BLOB_PATH}${row.listing_image_key}`
+    }
+  })
   res.render('index', { listings, user: req.user })
 })
 
