@@ -205,114 +205,114 @@ app.get('/', async (req, res) => {
   res.render('index', { listings, user: req.user })
 })
 
-// app.get('/account', auth.check('/login'), async (req, res) => {
-//   res.render('account', { user: req.user })
-// })
+app.get('/account', auth.check('/login'), async (req, res) => {
+  res.render('account', { user: req.user })
+})
 
-// app.get('/listing/:listingId', auth.check('/login'), async (req, res) => {
-//   const result = await db.query(`
-//     SELECT 
-//       listing_owner_id,
-//       listing_description,
-//       listing_category,
-//       listing_location,
-//       listing_contact,
-//       listing_collection,
-//       listing_image_key,
-//       listing_created_at
-//     FROM listing JOIN account 
-//     ON listing_owner_id = account_id
-//     WHERE listing_id = $1
-//   `, [ req.params.listingId ])
-//   const listing = {
-//     id: result.rows[0].listing_id,
-//     description: result.rows[0].listing_description,
-//     category: result.rows[0].listing_category,
-//     location: result.rows[0].listing_location,
-//     contact: result.rows[0].listing_contact,
-//     collection: result.rows[0].listing_collection,
-//     imageURL: `${BLOB_PATH}${result.rows[0].listing_image_key}`,
-//     timestamp: dayjs(result.rows[0].listing_created_at).fromNow()
-//   }
-//   res.render('listing', { user: req.user, listing })
-// })
+app.get('/listing/:listingId', auth.check('/login'), async (req, res) => {
+  const result = await db.query(`
+    SELECT 
+      listing_owner_id,
+      listing_description,
+      listing_category,
+      listing_location,
+      listing_contact,
+      listing_collection,
+      listing_image_key,
+      listing_created_at
+    FROM listing JOIN account 
+    ON listing_owner_id = account_id
+    WHERE listing_id = $1
+  `, [ req.params.listingId ])
+  const listing = {
+    id: result.rows[0].listing_id,
+    description: result.rows[0].listing_description,
+    category: result.rows[0].listing_category,
+    location: result.rows[0].listing_location,
+    contact: result.rows[0].listing_contact,
+    collection: result.rows[0].listing_collection,
+    imageURL: `${BLOB_PATH}${result.rows[0].listing_image_key}`,
+    timestamp: dayjs(result.rows[0].listing_created_at).fromNow()
+  }
+  res.render('listing', { user: req.user, listing })
+})
 
-// app.get('/listing', auth.check('/login'), async (req, res) => {
-//   res.render('listing', { user: req.user })
-// })
+app.get('/listing', auth.check('/login'), async (req, res) => {
+  res.render('listing', { user: req.user })
+})
 
-// app.post('/listing', auth.check('/login'), upload.single('file'), async (req, res) => {
-//   const owner = req?.user?.id
-//   const description = req?.body?.description
-//   const category = req?.body?.category
-//   const location = req?.body?.location
-//   const collection = req?.body?.collection
-//   const contact = req?.body?.contact
-//   const image = req?.file?.key
-//   // Validate inputs. Only create a new object if all fields are set
-//   if (
-//     owner === undefined ||
-//     description === undefined ||
-//     category === undefined ||
-//     location === undefined ||
-//     collection === undefined ||
-//     contact === undefined ||
-//     image === undefined
-//   ) {
-//     res.sendStatus(422)
-//     return
-//   }
-//   const query = `
-//     INSERT INTO listing(
-//       listing_owner_id,
-//       listing_description,
-//       listing_category,
-//       listing_location,
-//       listing_collection,
-//       listing_contact,
-//       listing_image_key
-//     ) 
-//     VALUES ($1, $2, $3, $4, $5, $6, $7) 
-//     RETURNING *
-//   `
-//   await db.query(query, [
-//     owner,
-//     description,
-//     category,
-//     location,
-//     collection,
-//     contact,
-//     image
-//   ])
-//   res.redirect('/')
-// })
+app.post('/listing', auth.check('/login'), upload.single('file'), async (req, res) => {
+  const owner = req?.user?.id
+  const description = req?.body?.description
+  const category = req?.body?.category
+  const location = req?.body?.location
+  const collection = req?.body?.collection
+  const contact = req?.body?.contact
+  const image = req?.file?.key
+  // Validate inputs. Only create a new object if all fields are set
+  if (
+    owner === undefined ||
+    description === undefined ||
+    category === undefined ||
+    location === undefined ||
+    collection === undefined ||
+    contact === undefined ||
+    image === undefined
+  ) {
+    res.sendStatus(422)
+    return
+  }
+  const query = `
+    INSERT INTO listing(
+      listing_owner_id,
+      listing_description,
+      listing_category,
+      listing_location,
+      listing_collection,
+      listing_contact,
+      listing_image_key
+    ) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    RETURNING *
+  `
+  await db.query(query, [
+    owner,
+    description,
+    category,
+    location,
+    collection,
+    contact,
+    image
+  ])
+  res.redirect('/')
+})
 
-// app.get('/login', auth.authenticate())
+app.get('/login', auth.authenticate())
 
-// app.get('/callback', auth.authenticate(), async (req, res) => {
-//   if (req.session.targetUrl) res.redirect(req.session.targetUrl)
-//   else res.redirect('/')
-// })
+app.get('/callback', auth.authenticate(), async (req, res) => {
+  if (req.session.targetUrl) res.redirect(req.session.targetUrl)
+  else res.redirect('/')
+})
 
-// app.post(
-//   '/login',
-//   auth.checkNot('/'),
-//   (req, res, next) => {
-//     let targetUrl = '/'
-//     if (req.session.targetUrl) {
-//       targetUrl = req.session.targetUrl
-//       delete req.session.targetUrl
-//     }
-//     return auth.authenticate()(req, res, next)
-//   }
-// )
+app.post(
+  '/login',
+  auth.checkNot('/'),
+  (req, res, next) => {
+    let targetUrl = '/'
+    if (req.session.targetUrl) {
+      targetUrl = req.session.targetUrl
+      delete req.session.targetUrl
+    }
+    return auth.authenticate()(req, res, next)
+  }
+)
 
-// app.post('/logout', (req, res, next) => {
-//   req.logout((err) => {
-//     if (err) next(err)
-//     else res.redirect('/')
-//   })
-// })
+app.post('/logout', (req, res, next) => {
+  req.logout((err) => {
+    if (err) next(err)
+    else res.redirect('/')
+  })
+})
 
 // -----------------------------------------------------------------------------
 // Deployment
