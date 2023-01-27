@@ -47,89 +47,89 @@ const CACHE_SSL = process.env.CACHE_SSL ? (process.env.CACHE_SSL === 'true') : f
 // -----------------------------------------------------------------------------
 // Initialization
 // -----------------------------------------------------------------------------
-// dayjs.extend(relativeTime)
+dayjs.extend(relativeTime)
 
-// // Setup the database connection
-// console.log(`Waiting on database availability ${DB_HOST}:${DB_PORT}`)
-// await waitOn({
-//   resources: [`tcp:${DB_HOST}:${DB_PORT}`]
-// })
-// const db = new pg.Pool({
-//   host: DB_HOST,
-//   port: DB_PORT,
-//   database: DB_NAME,
-//   user: DB_USER,
-//   password: DB_PASSWORD,
-//   ssl: DB_SSL
-// })
-// console.log(`Database available at ${DB_HOST}:${DB_PORT}`)
+// Setup the database connection
+console.log(`Waiting on database availability ${DB_HOST}:${DB_PORT}`)
+await waitOn({
+  resources: [`tcp:${DB_HOST}:${DB_PORT}`]
+})
+const db = new pg.Pool({
+  host: DB_HOST,
+  port: DB_PORT,
+  database: DB_NAME,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  ssl: DB_SSL
+})
+console.log(`Database available at ${DB_HOST}:${DB_PORT}`)
 
-// // Setup blobstore connection
-// console.log(`Waiting on blobstore availability ${BLOB_HOST}:${BLOB_PORT}`)
-// await waitOn({
-//   resources: [`tcp:${BLOB_HOST}:${BLOB_PORT}`]
-// })
-// const minioClient = new minio.Client({
-//   endPoint: BLOB_HOST,
-//   port: BLOB_PORT,
-//   accessKey: BLOB_USER,
-//   secretKey: BLOB_PASSWORD,
-//   useSSL: false
-// })
-// console.log(`Blobstore available at ${BLOB_HOST}:${BLOB_PORT}`)
-// // Stores a file with a random filename
-// class MinioMulterStorage {
-//   #client
-//   #bucket
-//   constructor (opts) {
-//     this.#client = opts.client
-//     this.#bucket = opts.bucket
-//   }
+// Setup blobstore connection
+console.log(`Waiting on blobstore availability ${BLOB_HOST}:${BLOB_PORT}`)
+await waitOn({
+  resources: [`tcp:${BLOB_HOST}:${BLOB_PORT}`]
+})
+const minioClient = new minio.Client({
+  endPoint: BLOB_HOST,
+  port: BLOB_PORT,
+  accessKey: BLOB_USER,
+  secretKey: BLOB_PASSWORD,
+  useSSL: false
+})
+console.log(`Blobstore available at ${BLOB_HOST}:${BLOB_PORT}`)
+// Stores a file with a random filename
+class MinioMulterStorage {
+  #client
+  #bucket
+  constructor (opts) {
+    this.#client = opts.client
+    this.#bucket = opts.bucket
+  }
 
-//   _handleFile (req, file, cb) {
-//     const key = uuid()
-//     this.#client.putObject(
-//       this.#bucket,
-//       key,
-//       file.stream,
-//       (err, result) => {
-//         if (err) cb(err)
-//         cb(null, {
-//           bucket: this.#bucket,
-//           key,
-//           etag: result.etag,
-//           versionId: result.versionId
-//         })
-//       }
-//     )
-//   }
+  _handleFile (req, file, cb) {
+    const key = uuid()
+    this.#client.putObject(
+      this.#bucket,
+      key,
+      file.stream,
+      (err, result) => {
+        if (err) cb(err)
+        cb(null, {
+          bucket: this.#bucket,
+          key,
+          etag: result.etag,
+          versionId: result.versionId
+        })
+      }
+    )
+  }
 
-//   _removeFile (req, file, cb) {
-//     this.#client.removeObject(file.bucket, file.key, cb)
-//   }
-// }
-// // Multer for express middleware it
-// const upload = multer({
-//   storage: new MinioMulterStorage({
-//     client: minioClient,
-//     bucket: BLOB_BUCKET
-//   })
-// })
+  _removeFile (req, file, cb) {
+    this.#client.removeObject(file.bucket, file.key, cb)
+  }
+}
+// Multer for express middleware it
+const upload = multer({
+  storage: new MinioMulterStorage({
+    client: minioClient,
+    bucket: BLOB_BUCKET
+  })
+})
 
-// // Setup cache connection
-// console.log(`Waiting on cache availability ${CACHE_HOST}:${CACHE_PORT}`)
-// await waitOn({
-//   resources: [`tcp:${CACHE_HOST}:${CACHE_PORT}`]
-// })
-// const RedisStore = connectRedis(session)
-// const redisClient = redis.createClient({
-//   legacyMode: true,
-//   url: CACHE_SSL 
-//     ? `rediss://default:${CACHE_PASSWORD}@${CACHE_HOST}:${CACHE_PORT}`
-//     : `redis://default:${CACHE_PASSWORD}@${CACHE_HOST}:${CACHE_PORT}`
-// })
-// await redisClient.connect()
-// console.log(`Cache available ${CACHE_HOST}:${CACHE_PORT}`)
+// Setup cache connection
+console.log(`Waiting on cache availability ${CACHE_HOST}:${CACHE_PORT}`)
+await waitOn({
+  resources: [`tcp:${CACHE_HOST}:${CACHE_PORT}`]
+})
+const RedisStore = connectRedis(session)
+const redisClient = redis.createClient({
+  legacyMode: true,
+  url: CACHE_SSL 
+    ? `rediss://default:${CACHE_PASSWORD}@${CACHE_HOST}:${CACHE_PORT}`
+    : `redis://default:${CACHE_PASSWORD}@${CACHE_HOST}:${CACHE_PORT}`
+})
+await redisClient.connect()
+console.log(`Cache available ${CACHE_HOST}:${CACHE_PORT}`)
 
 // // Setup the main application stack
 console.log('Initializing app server')
@@ -144,18 +144,18 @@ app.set('view engine', 'pug')
 app.set('views', viewPath)
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-// app.use(flash())
-// app.use(
-//   session({
-//     store: new RedisStore({ client: redisClient }),
-//     secret: SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false
-//   })
-// )
-// app.use(passport.initialize())
-// app.use(passport.session())
-// const auth = new Auth(passport, db).init()
+app.use(flash())
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+  })
+)
+app.use(passport.initialize())
+app.use(passport.session())
+const auth = new Auth(passport, db).init()
 
 // // -----------------------------------------------------------------------------
 // // Web Server
