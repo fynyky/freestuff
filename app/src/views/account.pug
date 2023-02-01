@@ -9,7 +9,14 @@ block main
     
     h1.title Account information
 
-    p.block= JSON.stringify(user)
+    h2.title User ID
+    p.block= user.id
+
+    h2.title Account Type
+    p.block= user.charity ? 'Public charity' : 'Public citizen'
+
+    h2.title Account creation date
+    p.block= user.createdAt.toDateString()
 
     form(action="logout" method="POST")
       .field
