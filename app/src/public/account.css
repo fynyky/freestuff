@@ -175,8 +175,19 @@ footer .links a {
   color: #999;
 }
 
-.container {
-  margin: 1rem;
+@media (min-width: 401px) {
+  .container {
+    margin: 1rem;
+  }
+}
+@media (min-width: 651px) {
+  .container {
+    margin: 3rem;
+  }
+}
+
+.button {
+  margin-top: 3rem;
 }
 
 /*# sourceMappingURL=account.css.map */
