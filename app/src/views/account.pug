@@ -7,16 +7,16 @@ block append vars
 block main
   .container
     
-    h1.title Account information
+    h1 Account information
 
-    h2.title User ID
-    p.block= user.id
+    h2 User ID
+    p= user.id
 
-    h2.title Account Type
-    p.block= user.charity ? 'Public charity' : 'Public citizen'
+    h2 Account Type
+    p= user.charity ? 'Public charity' : 'Public citizen'
 
-    h2.title Account creation date
-    p.block= user.createdAt.toDateString()
+    h2 Account creation date
+    p= user.createdAt.toDateString()
 
     form(action="logout" method="POST")
       .field
