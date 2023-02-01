@@ -186,7 +186,7 @@ footer .links a {
   }
 }
 
-.button {
+.button#logout {
   margin-top: 3rem;
 }
 
