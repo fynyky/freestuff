@@ -175,10 +175,8 @@ footer .links a {
   color: #999;
 }
 
-@media (min-width: 401px) {
-  .container {
-    margin: 1rem;
-  }
+.container {
+  margin: 1rem;
 }
 @media (min-width: 651px) {
   .container {
